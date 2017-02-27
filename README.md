@@ -21,7 +21,7 @@ The crawler will now crawl the website according to the configuration file in th
 
 WARNING: On a large website like wikiHow, this code is likely to run for a very long period of time, even multiple days.
 
-## Seed Extraction
+# Seed Extraction
 
 The python script `seed-generator/extract_seeds.py` allows to extract a list of visited URLs from the results of a previous run.
 
