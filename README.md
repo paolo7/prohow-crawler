@@ -21,6 +21,23 @@ The crawler will now crawl the website according to the configuration file in th
 
 WARNING: On a large website like wikiHow, this code is likely to run for a very long period of time, even multiple days.
 
+## File Prefixes
+
+The generated Turtle files will use namespace prefixes not defined in the file itself. To use them, it might be required to specify the following URI namespaces:
+
+```
+@prefix w: <http://w3id.org/prohowlinks#> .
+@prefix oa: <http://www.w3.org/ns/oa#> .
+@prefix prohow: <http://w3id.org/prohow#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dbo: <http://dbpedia.org/ontology/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+```
+
+These namespaces are defined in Turtle format, and they could be added at the beginning of any generated `.ttl` file to make it into a correct self-contained Turtle file.
+
 # Seed Extraction
 
 The python script `seed-generator/extract_seeds.py` allows to extract a list of visited URLs from the results of a previous run.
