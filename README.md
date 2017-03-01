@@ -40,7 +40,7 @@ These namespaces are defined in Turtle format, and they could be added at the be
 
 # Instruction Extraction
 
-### A Python Script to Exctract Subsets of the Data
+#### A Python Script to Exctract Subsets of the Data
 
 The amount of data extracted by the crawler can be inconveniently large for many processing purposes. If the amount of data extracted is too large, the instruction extractor script allows the extraction of specific sets of instructions from the whole set of Turtle files
 The `extractor` folder contains the `extract_specific_instruction_sets.py` python script that extracts the RDF representation of specific sets of instructions. This can be done in one of three ways, or a combination of those. Instructions that do not match at least one of the category-based filter or the specific instructions filter will not be selected.
