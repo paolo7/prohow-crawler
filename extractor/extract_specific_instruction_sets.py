@@ -4,13 +4,54 @@
 # only the sets of instructions corresponding to these URLs will be extracted
 # the URLs will be matched in a non-case sensitive way
 
+## IN-CODE PARAMETERS
+
 # This parameter can be changed to only select instructions with specific language tags.
 # More specifically, the algorighm will only consider files having a name which starts with at least one 
 list_of_allowed_languages = []
 # for example, for English and Spanish: 
-#list_of_allowed_languages = ["en","es"]
+# list_of_allowed_languages = ["en","es"]
+
+# This parameter can be changed to only select instructions witin specific categories.
+# More specifically, the algorighm will select all the instructions which directly belong to one of the types
+# in list_of_allowed_categories, or one their sub-classes as defined in RDFS, in the Turtle file class_hierarchy.ttl
+list_of_allowed_categories = []
+# for example, the following configuration extracts only breakfast food instructions in Spanish and English
+# list_of_allowed_categories = ["http://www.wikihow.com/Category:Breakfast","http://es.wikihow.com/Categor%C3%ADa:Desayunos"]
+
+# CODE START
 
 import os, ntpath, string
+
+hierarchy = {}
+# load hieararchy if present
+if os.path.isfile("class_hierarchy.ttl"):
+    print "Loading a class hierarchy"
+    num = 0
+    h = open("class_hierarchy.ttl",'r')
+    for line in h:
+        urls = line.split("> rdfs:subClassOf <")
+        #print urls
+        url1 = urls[0][1:]
+        url2 = urls[1][:-4]
+        #print url1
+        #print url2
+        hierarchy[url1] = url2
+        num += 1
+    h.close()
+    print str(num)+" sub-class relations extracted."
+
+def is_subclass_of(concept,super):
+    return is_subclass_of_with_recursion_limit(concept,super,0)
+
+def is_subclass_of_with_recursion_limit(concept,super,level):
+    if level > 30:
+        return False
+    if concept == super:
+        return True
+    if concept in hierarchy:
+        return is_subclass_of_with_recursion_limit(hierarchy[concept],super,level+1)
+    return False
 
 list_of_urls = []
 conf = open("extract_specific_sets_instructions.txt",'r')
@@ -20,8 +61,7 @@ for line in conf:
         list_of_urls.append(extracted);
 conf.close()
 
-for line in list_of_urls:
-    print line
+print "Specific URL extraction configured with: "+str(len(list_of_urls))+" URLs"
 	
 
 
@@ -34,6 +74,7 @@ def save(line):
     out.write(line+"\n\n")
 
 def parse_file(file):
+    print "Parsing file "+str(file)
     f = open(file,'r')
     full_instruction = ""	
     found = False
@@ -42,6 +83,12 @@ def parse_file(file):
         if 'oa:hasTarget <' in line:
             for url in list_of_urls:
                 if "<"+str(url.lower())+">" in line.lower():
+                    found = True
+        if "rdf:type <" in line:
+            line_parts = line.split("rdf:type <")
+            type = line_parts[1][:-4]
+            for allowed_concept in list_of_allowed_categories:
+                if is_subclass_of(type,allowed_concept):
                     found = True
         #if 'http://www.wikihow.com/Category:Cocktails' in line or ('http://es.wikihow.com/Categor%C3%ADa:Bebidas-alcoh%C3%B3licas' in line)\
         #        or ('http://es.wikihow.com/Categor%C3%ADa:Pizza' in line) or ('http://www.wikihow.com/Category:Pizza' in line):
