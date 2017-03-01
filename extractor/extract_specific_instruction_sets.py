@@ -8,9 +8,9 @@
 # More specifically, the algorighm will only consider files having a name which starts with at least one 
 list_of_allowed_languages = []
 # for example, for English and Spanish: 
-# list_of_allowed_languages = ["en","es"]
+#list_of_allowed_languages = ["en","es"]
 
-import os, ntpath
+import os, ntpath, string
 
 list_of_urls = []
 conf = open("extract_specific_sets_instructions.txt",'r')
@@ -25,8 +25,11 @@ for line in list_of_urls:
 	
 
 
-out = open('extracted.txt','w')
+out = open('graph.ttl','w')
 
+out.write("@prefix w: <http://w3id.org/prohowlinks#> .\n@prefix oa: <http://www.w3.org/ns/oa#> .\n@prefix prohow: <http://w3id.org/prohow#> .\n\
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\
+@prefix owl: <http://www.w3.org/2002/07/owl#> .\n@prefix dbo: <http://dbpedia.org/ontology/> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n")
 def save(line):
     out.write(line+"\n\n")
 
@@ -40,6 +43,9 @@ def parse_file(file):
             for url in list_of_urls:
                 if "<"+str(url.lower())+">" in line.lower():
                     found = True
+        #if 'http://www.wikihow.com/Category:Cocktails' in line or ('http://es.wikihow.com/Categor%C3%ADa:Bebidas-alcoh%C3%B3licas' in line)\
+        #        or ('http://es.wikihow.com/Categor%C3%ADa:Pizza' in line) or ('http://www.wikihow.com/Category:Pizza' in line):
+        #    found = True
         if 'rdf:type prohow:instruction_set .' in line:
             # if the previous instruction set was selected, save it in output
             if found:
@@ -50,11 +56,13 @@ def parse_file(file):
             full_instruction = line
         else:
             if len(full_instruction) > 0:
-                full_instruction = full_instruction+line        
-    if 'rdf:type prohow:instruction_set .' in line:
-        if found:
-            save(full_instruction)
-            found_num += 1				
+                if "<" in line and ">" in line and ":" in line and "http:" in line:
+                    line = string.replace(line, "(", "")#tring.replace(s, old, new[, maxreplace])
+                    line = string.replace(line, ")", "")
+                full_instruction = full_instruction+line
+    if found:
+        save(full_instruction)
+        found_num += 1
     f.close()
     print "Found in file: "+str(found_num)
     return found_num
