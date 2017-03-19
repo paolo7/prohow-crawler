@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import com.hp.hpl.jena.sparql.util.Utils; 
@@ -67,7 +68,7 @@ public class SaveFiles {
 	public String rel_has_step = "prohow:has_step";
 	public String rel_has_method = "prohow:has_method";
 	public String rel_requires = "prohow:requires";
-	public String rel_requires_sufficient = "prohow:requires_sufficient";
+	public String rel_requires_sufficient = "prohow:requires_one";
 	
 	public String rel_has_link = "prohow:linked_to";
 	
@@ -244,7 +245,7 @@ public class SaveFiles {
 			writer.write(create_type_triple(article_uri, encapsulte_uri(urlify(most_recent_and_specific_category))));
 		}
 		for (String link : article.language_links){
-			writer.write(create_triple(encapsulte_uri(article.url), rel_same_as, encapsulte_uri(link)));
+			writer.write(create_triple(encapsulte_uri(article.url.toLowerCase()), rel_same_as, encapsulte_uri(link.toLowerCase())));
 		}
 	}
 	
@@ -259,7 +260,7 @@ public class SaveFiles {
 			writer.write(create_label_triple(requirements_uri, req_list.name, language_code));
 			writer.write(create_type_triple(requirements_uri, type_complete_instructions));
 			for (String link : req_list.links){
-				req_l_writer.write(create_triple(requirements_uri,rel_has_link,link));
+				req_l_writer.write(create_triple(requirements_uri,rel_has_link,link.toLowerCase()));
 			}
 			for (RequirementRepresentation requirement : req_list.requirements){
 				String req_uri = mint_prefixed_uri();
@@ -267,7 +268,7 @@ public class SaveFiles {
 				writer.write(create_label_triple(req_uri, requirement.text, language_code));
 				writer.write(create_type_triple(req_uri, req_type));
 				for (String link : requirement.links){
-					req_l_writer.write(create_triple(req_uri,rel_has_link,link));
+					req_l_writer.write(create_triple(req_uri,rel_has_link,link.toLowerCase()));
 				}
 			}
 		}
@@ -278,10 +279,10 @@ public class SaveFiles {
 			String method_uri = mint_prefixed_uri();
 			writer.write(create_triple(uri, rel_has_method, method_uri));
 			writer.write(create_label_triple(method_uri, method.text, language_code));
-			writer.write(create_type_triple(method_uri, type_complete_instructions));
+			//writer.write(create_type_triple(method_uri, type_complete_instructions));
 			write_steps(method.steps,method_uri,writer,step_l_writer,language_code);
 			for (String link : method.links){
-				step_l_writer.write(create_triple(method_uri,rel_has_link,link));
+				step_l_writer.write(create_triple(method_uri,rel_has_link,link.toLowerCase()));
 			}
 		}
 	}
@@ -300,7 +301,7 @@ public class SaveFiles {
 				writer.write(create_triple(step_uri, rel_requires, previous_step_uri));
 			previous_step_uri = step_uri;
 			for (String link : step.links){
-				step_l_writer.write(create_triple(step_uri,rel_has_link,link));
+				step_l_writer.write(create_triple(step_uri,rel_has_link,link.toLowerCase()));
 			}
 		}
 	}
@@ -317,7 +318,9 @@ public class SaveFiles {
 	}
 	public String create_abstract_triple(String uri, String label, String language_code){
 		//http://dbpedia.org/ontology/abstract
-		return create_triple(uri,"dbo:abstract",encapsulateLongLiteral(label,language_code));
+		Document doc = Jsoup.parse(label);
+		return create_triple(uri,"dbo:abstract",encapsulateLongLiteral(doc.text(),language_code))+create_triple(uri,"prohow:html_abstract",encapsulateLongLiteral(label,language_code));
+		
 	}
 	
 	public String encapsulte_uri(String uri){

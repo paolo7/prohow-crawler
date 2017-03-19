@@ -18,8 +18,13 @@ import edu.uci.ics.crawler4j.util.IO;
 import org.apache.log4j.Logger;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
@@ -31,6 +36,7 @@ public class MyCrawlerController extends CrawlController {
 
 	private static final Logger logger = Logger.getLogger(MyCrawlerController.class.getName());
 
+	private static final List<String> random_pages =  new LinkedList<String>();
 	/**
 	 * The 'customData' object can be used for passing custom crawl-related
 	 * configurations to different components of the crawler.
@@ -76,7 +82,23 @@ public class MyCrawlerController extends CrawlController {
 				throw new Exception("Couldn't create this folder: " + folder.getAbsolutePath());
 			}
 		}
-
+		random_pages.add("http://www.wikihow.com/Special:Randomizer");
+		random_pages.add("http://es.wikihow.com/Especial:Randomizer");
+		random_pages.add("http://cs.wikihow.com/Speci%C3%A1ln%C3%AD:Randomizer");
+		random_pages.add("http://de.wikihow.com/Spezial:Randomizer");
+		random_pages.add("http://fr.wikihow.com/Sp%C3%A9cial:Randomizer");
+		random_pages.add("http://hi.wikihow.com/%E0%A4%B5%E0%A4%BF%E0%A4%B6%E0%A5%87%E0%A4%B7:Randomizer");
+		random_pages.add("http://id.wikihow.com/Istimewa:Randomizer");
+		random_pages.add("http://it.wikihow.com/Speciale:Randomizer");
+		random_pages.add("http://www.wikihow.jp/%E7%89%B9%E5%88%A5:Randomizer");
+		random_pages.add("http://nl.wikihow.com/Speciaal:Randomizer");
+		random_pages.add("http://pt.wikihow.com/Especial:Randomizer");
+		random_pages.add("http://ru.wikihow.com/%D0%A1%D0%BB%D1%83%D0%B6%D0%B5%D0%B1%D0%BD%D0%B0%D1%8F:Randomizer");
+		random_pages.add("http://ar.wikihow.com/%D8%AE%D8%A7%D8%B5:Randomizer");
+		random_pages.add("http://th.wikihow.com/%E0%B8%9E%E0%B8%B4%E0%B9%80%E0%B8%A8%E0%B8%A9:Randomizer");
+		random_pages.add("http://www.wikihow.vn/%C4%90%E1%BA%B7c_bi%E1%BB%87t:Randomizer");
+		random_pages.add("http://ko.wikihow.com/%ED%8A%B9%EC%88%98:Randomizer");
+		random_pages.add("http://zh.wikihow.com/Special:Randomizer");
 		boolean resumable = config.isResumableCrawling();
 
 		EnvironmentConfig envConfig = new EnvironmentConfig();
@@ -161,6 +183,15 @@ public class MyCrawlerController extends CrawlController {
 						synchronized (waitingLock) {
 
 							while (true) {
+								long queueLength = frontier.getQueueLength();
+								queueLength = frontier.getQueueLength();
+								while (queueLength < 1) {
+									System.out.println(">> "+queueLength);
+									retrieve_random_pages();
+									queueLength = frontier.getQueueLength();
+									System.out.println(">> "+queueLength);
+								}
+								
 								sleep(10);
 								boolean someoneIsWorking = false;
 								for (int i = 0; i < threads.size(); i++) {
@@ -183,6 +214,7 @@ public class MyCrawlerController extends CrawlController {
 									}
 								}
 								if (!someoneIsWorking) {
+									retrieve_random_pages();
 									// Make sure again that none of the threads
 									// are
 									// alive.
@@ -197,9 +229,16 @@ public class MyCrawlerController extends CrawlController {
 										}
 									}
 									if (!someoneIsWorking) {
-										if (!shuttingDown) {
+										
+										retrieve_random_pages();
+										continue;
+										/*if (!shuttingDown) {
 											long queueLength = frontier.getQueueLength();
+											queueLength = frontier.getQueueLength();
 											if (queueLength > 0) {
+												continue;
+											} else {
+												retrieve_random_pages();
 												continue;
 											}
 											logger.info("No thread is working and no more URLs are in queue waiting for another 10 seconds to make sure...");
@@ -231,7 +270,7 @@ public class MyCrawlerController extends CrawlController {
 										finished = true;
 										waitingLock.notifyAll();
 
-										return;
+										return;*/
 									}
 								}
 							}
@@ -253,6 +292,24 @@ public class MyCrawlerController extends CrawlController {
 		}
 	}
 
+	public void retrieve_random_pages() {
+		System.out.println("Retrieving random pages...");
+		for (String r : random_pages){
+			try{
+				HttpURLConnection con = (HttpURLConnection)(new URL( r ).openConnection());
+				con.setInstanceFollowRedirects( false );
+				con.connect();
+				int responseCode = con.getResponseCode();
+				String location = con.getHeaderField( "Location" );
+				//System.out.println( r+" ---> "+location );
+				addSeed(location);
+				Thread.sleep(100);
+			}
+			catch (InterruptedException | IOException e)  {
+				
+			}
+		}
+	}
 	/**
 	 * Wait until this crawling session finishes.
 	 */

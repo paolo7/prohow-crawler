@@ -113,7 +113,7 @@ public class StartCollector {
 			}
 			
 			Logger.log("START: The crawling is starting");
-			controller.start(KnowHowCrawlerImplementation.class, numberOfCrawlers);
+			controller.startNonBlocking(KnowHowCrawlerImplementation.class, numberOfCrawlers);
 			Logger.log("END: The crawling is finished");
 		} catch (Exception e) {
 			e.printStackTrace();

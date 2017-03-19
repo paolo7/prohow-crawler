@@ -181,6 +181,8 @@ public class KnowHowCrawlerImplementation extends WebCrawler {
 		if(pagesCount > 0 && pagesCount % logPrintInverseFrequency == 0){
 			Logger.log("\nSTATUS LOG: Extracted "+htmlCount+" HTML pages and "+imageCount+" images. (Total visited: "+pagesCount+")");
 			Logger.log(get_printable_language_statistics()+"\n");
+			((MyCrawlerController) this.myController).retrieve_random_pages();
+			Logger.log("Pages in frontier: "+((MyCrawlerController) this.myController).frontier.getQueueLength());
 			try {
 				file_saver.save_hierarchy();
 			} catch (IOException e) {
@@ -243,6 +245,7 @@ public class KnowHowCrawlerImplementation extends WebCrawler {
 			if(href.indexOf("http://") == 0 && href.indexOf(".") == 9) language_code = href.substring(7, 9);
 			if(href.indexOf("https://") == 0 && href.indexOf(".") == 10) language_code = href.substring(8, 10);	
 			if(href.indexOf("http://www.wikihow.jp/") == 0) language_code = "jp"; 
+			if(href.indexOf("http://ja.wikihow.com/") == 0) language_code = "jp"; 
 			if(href.indexOf("http://www.wikihow.vn/") == 0) language_code = "vn";
 		}
 		return language_code;
