@@ -258,7 +258,7 @@ public class SaveFiles {
 			String requirements_uri = mint_prefixed_uri();
 			writer.write(create_triple(uri, rel_requires, requirements_uri));
 			writer.write(create_label_triple(requirements_uri, req_list.name, language_code));
-			writer.write(create_type_triple(requirements_uri, type_complete_instructions));
+			//writer.write(create_type_triple(requirements_uri, type_complete_instructions));
 			for (String link : req_list.links){
 				req_l_writer.write(create_triple(requirements_uri,rel_has_link,link.toLowerCase()));
 			}
@@ -314,7 +314,8 @@ public class SaveFiles {
 		return create_triple(uri,"rdf:type",type);
 	}
 	public String create_label_triple(String uri, String label,String language_code){
-		return create_triple(uri,"rdfs:label",encapsulateLongLiteral(label,language_code));
+		Document doc = Jsoup.parse(label);
+		return create_triple(uri,"rdfs:label",encapsulateLongLiteral(doc.text(),language_code))+create_triple(uri,"prohow:html_label",encapsulateLongLiteral(label,language_code));
 	}
 	public String create_abstract_triple(String uri, String label, String language_code){
 		//http://dbpedia.org/ontology/abstract

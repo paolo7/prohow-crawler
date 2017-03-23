@@ -222,13 +222,14 @@ public class KnowHowCrawlerImplementation extends WebCrawler {
 					try {
 						TimeUnit.MINUTES.sleep(5);
 						file_saver.save_article(article, pageDocument, href);
+						success = true;
 						if(language_statistics.containsKey(article.language_code)) 
 							language_statistics.put(article.language_code, new Integer(language_statistics.get(article.language_code) +1));
 						else language_statistics.put(article.language_code, new Integer(1));
+						Logger.log_error("RESOLVED: article has been saved");
 					} catch (IOException | InterruptedException ex) {
 						Logger.log_error("ERRROR: failed to save article, trying again in 5 minutes...");
 					}
-					Logger.log_error("RESOLVED: article has been saved");
 				}
 			}
 		} else {
