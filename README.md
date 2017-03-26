@@ -40,10 +40,20 @@ These namespaces are defined in Turtle format, and they could be added at the be
 
 # Instruction Extraction
 
-#### A Python Script to Exctract Subsets of the Data
+#### A Python Script to Exctract and Simplify Subsets of the Data
 
-The amount of data extracted by the crawler can be inconveniently large for many processing purposes. If the amount of data extracted is too large, the instruction extractor script allows the extraction of specific sets of instructions from the whole set of Turtle files
-The `extractor` folder contains the `extract_specific_instruction_sets.py` python script that extracts the RDF representation of specific sets of instructions. This can be done in one of three ways, or a combination of those. Instructions that do not match at least one of the category-based filter or the specific instructions filter will not be selected.
+The amount of data extracted by the crawler can be inconveniently large for many processing purposes. If the amount of data extracted is too large, the instruction extractor script allows the extraction of specific sets of instructions from the whole set of Turtle files.
+
+The extractor script and a tutorial on how to use it can be found at this repository:
+ - https://github.com/paolo7/extractor-script
+
+Among others, this script allows you to extract instructions:
+ - in certain languages
+ - in certain categories
+ - with a number of steps and requirements within a certain range
+ - from specific URLs
+ 
+Moreover, if you are not interested in all the details, it allows you to generate a simplified version of the dataset in a simple data model: a main task with a set of requirements and an ordered list of steps.
 
 ## Language-Based Filter
 
